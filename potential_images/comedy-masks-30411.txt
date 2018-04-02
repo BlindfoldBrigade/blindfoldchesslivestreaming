@@ -1,0 +1,3 @@
+thoughts: an "icon sized" version of the full profile pic, for use as the little avatar picture.
+url : https://pixabay.com/en/comedy-masks-theatre-masks-blindfold-30411/
+license : CCO Creative Commons (Public Domain)
