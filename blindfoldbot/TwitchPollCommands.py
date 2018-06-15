@@ -2,7 +2,8 @@ from __future__ import print_function
 import os
 import sys 
 
-import urllib2
+import urllib.request
+import urllib.parse
 
 #def twitch_http_get(
 
@@ -18,6 +19,64 @@ COMMON_BASE_URL = "https://api.twitch.tv/helix/"
 # client id
 # oauth
 ###
+
+class MissingParameterError(Exception):
+    def __init__(self, message):
+        self.message = message
+
+class ConflictingParameterError(Exception):
+    def __init__(self, message):
+        self.message = message
+
+
+#def twitchget(baseurl, reqargs, optargs, **kwargs):
+#def twitchget(func):
+def twitchget(baseurl, reqargs, optargs, **kwargs):
+    args = {}
+        
+    #required arguments
+    for item in reqargs:
+        if type(item) == list:
+            #require one and only one of the list elements
+            thingfound = ''
+            for thing in item:
+                if thing in kwargs.keys() and not kwargs[thing] == None:
+                    if not thingfound == '':
+                        #more than one mutually exclusive parameter was passed
+                        raise ConflictingParameterError(baseurl + ' was passed mutually exclusive parameters ' + thingfound + ' and ' + thing)
+                    else:
+                        thingfound = thing
+                        args[thing] = kwargs[thing]
+        elif not item in kwargs.keys() or kwargs[item] == None:
+            raise MissingParameterError(baseurl + ' is missing ' + item + ' parameter.')
+        else:
+            args[item] = kwargs[item]
+
+    #optional arguments
+    for item in optargs:
+        if item in kwargs.keys() and not kwargs[item] == None:
+            args[item] = kwargs[item]
+
+    params = urllib.parse.urlencode(args)
+    url = baseurl+'?%s'%params
+    req = urllib.request.Request(url)
+
+    #client id and oauth
+    if not 'clientid' in kwargs.keys():
+        raise MissingParameterError(baseurl + ' is missing clientid parameter.')
+    req.add_header('Client-ID', kwargs['clientid'])
+
+    if not 'oauth' in kwargs.keys():
+        raise MissingParameterError(baseurl + ' is missing oauth parameter.')
+    req.add_header('Authorization', 'Bearer ' + kwargs['oauth'])
+
+    with urllib.request.urlopen(req) as f:
+        results = f.read().decode('utf-8')
+
+    #return results as a dict
+    return eval(results)
+
+        
 
 #Gets a ranked list of Bits leaderboard information for an authorized broadcaster
 #Required Scope: bits:read
@@ -38,9 +97,9 @@ COMMON_BASE_URL = "https://api.twitch.tv/helix/"
 # total(int) : total number of users returned
 # user_id(str) : ID of the user in the leaderboard entry
 ###
+#@twitchget(COMMON_BASE_URL+'bits/leaderboard', (), ('count', 'period', 'started_at', 'user_id'), **kwargs)
 def get_bits_leaderboard(**kwargs):
-    BITS_LEADERBOARD_BASE_URL = COMMON_BASE_URL + 'bits/leaderboard'
-    return 'get_bits_leaderboard'
+    return twitchget(COMMON_BASE_URL+'bits/leaderboard', (), ('count', 'period', 'started_at', 'user_id'), **kwargs)
 
 #Creates a clip programmatically.  This returns both an ID and an edit URL for the new clip
 #Required Scope: clips:edit
@@ -86,8 +145,9 @@ def create_clip(**kwargs):
 # view_count(int) : Number of times the clip has been viewed
 ###
 def get_clips(**kwargs):
-    GET_CLIPS_BASE_URL = COMMON_BASE_URL + 'clips'
-    return 'get_clips'
+    return twitchget(COMMON_BASE_URL+'clips', (['broadcaster_id', 'game_id', 'id'],), ('after', 'before', 'first'), **kwargs)
+#    GET_CLIPS_BASE_URL = COMMON_BASE_URL + 'clips'
+#    return 'get_clips'
 
 #Creates a URL where you can upload a manifest file and notify users that they have an entitlement.  See Drops Guide.
 #Required Scope: Application access token

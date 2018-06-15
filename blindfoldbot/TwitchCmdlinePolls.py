@@ -1,7 +1,7 @@
 from __future__ import print_function
 import os
 import sys 
-import ConfigParser
+import configparser
 import argparse
 
 from TwitchPollWrappers import hundredint, hundredlist, datetime_rfc3339, twitchmanifestid
@@ -50,8 +50,8 @@ def generate_default_config(config_filename):
 def setup_argument_parsers(progname):
     parser = argparse.ArgumentParser(description='common parameters for all commands', add_help=False)
     parser.add_argument('-c', '--config', help="Config file with data to use to either fully or partially run the command.  You don't need to specify this if you're manually setting all values with command line arguments.", required=False)
-    parser.add_argument('-a', '--oauth', help='Twitch broadcaster oauth.  If unspecified it needs to be present in the specified config file.', required=False)
-    parser.add_argument('-i', '--clientid', help='Twitch client id.  If unspecified it needs to be present in the specified config file.', required=False)
+    parser.add_argument('-a', '--oauth', help='Twitch broadcaster oauth.  If unspecified it needs to be present in the specified config file.', required=True)
+    parser.add_argument('-i', '--clientid', help='Twitch client id.  If unspecified it needs to be present in the specified config file.', required=True)
 
     #parsers that use after/first cursoring
     afterfirstparser = argparse.ArgumentParser(description='commands that use after/first cursoring', add_help=False)
@@ -195,13 +195,15 @@ if __name__ == "__main__":
 
     command_name = sys.argv[1]
 
-    if not command_functions.has_key(command_name):
+    if not command_name in command_functions.keys():
         print(command_name + ' is not a known command.\n')
         print_known_commands()
         sys.exit()
 
     args = command_functions[command_name][1].parse_args(sys.argv[2:])
-    print(args)
+    print(command_functions[command_name][0](**vars(args)))
+
+
 #    print(command_functions[command_name][0](command_functions[command_name][1], sys.argv))
 
 #    config_filename = sys.argv[2]

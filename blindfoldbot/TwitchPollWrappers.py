@@ -1,3 +1,4 @@
+#you have to do a pip install python-dateutil to get this, it's not part of regular python
 import dateutil
 
 
