@@ -3,7 +3,6 @@ import pyppeteer
 
 import sys 
 
-#import alternatecmds.screenscrapes.html_getclips
 import alternatecmds.screenscrapes.soup_getclips
 
 
@@ -18,7 +17,6 @@ async def get_clips_info_from_twitch_page_async(channel_to_check):
     await asyncio.sleep(3)
     channel_content = await twpages[0].content()
     await twbrowser.close()
-#    return alternatecmds.screenscrapes.html_getclips.perform_parse(channel_content)
     return alternatecmds.screenscrapes.soup_getclips.perform_parse(channel_content)
 
 

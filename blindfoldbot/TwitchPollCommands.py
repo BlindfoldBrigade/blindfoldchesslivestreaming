@@ -5,6 +5,10 @@ import sys
 import urllib.request
 import urllib.parse
 
+import collections
+
+import ast
+
 #def twitch_http_get(
 
 #def twitch_http_put(
@@ -15,11 +19,6 @@ import urllib.parse
 
 COMMON_BASE_URL = "https://api.twitch.tv/helix/"
 
-###common params
-# client id
-# oauth
-###
-
 class MissingParameterError(Exception):
     def __init__(self, message):
         self.message = message
@@ -29,10 +28,33 @@ class ConflictingParameterError(Exception):
         self.message = message
 
 
-#def twitchget(baseurl, reqargs, optargs, **kwargs):
-#def twitchget(func):
-def twitchget(baseurl, reqargs, optargs, **kwargs):
-    args = {}
+#the twitch approach to list handling is just to repeat in the 
+#form param=val&param=val2&param=val3, etc
+def listify_keywords(**kwargs):
+    arglist = []
+
+    for key in kwargs.keys():
+        if isinstance(kwargs[key], str):
+            #strings are iterable but don't break them up
+            arglist.append([key, kwargs[key]])
+        elif isinstance(kwargs[key], collections.Iterable):
+            for item in kwargs[key]:
+                arglist.append([key, item])
+        elif not kwargs[key] == None:
+            arglist.append([key, kwargs[key]])
+
+    return arglist
+
+def findvalue(key, seq):
+    for keyy, val in seq:
+        if keyy == key:
+            return val
+
+    return None
+
+def twitchget(baseurl, reqargs, optargs, availableargs):
+    args = []
+    availablekeys = [key for key,value in availableargs]
         
     #required arguments
     for item in reqargs:
@@ -40,41 +62,51 @@ def twitchget(baseurl, reqargs, optargs, **kwargs):
             #require one and only one of the list elements
             thingfound = ''
             for thing in item:
-                if thing in kwargs.keys() and not kwargs[thing] == None:
+                if thing in availablekeys:
                     if not thingfound == '':
                         #more than one mutually exclusive parameter was passed
                         raise ConflictingParameterError(baseurl + ' was passed mutually exclusive parameters ' + thingfound + ' and ' + thing)
                     else:
                         thingfound = thing
-                        args[thing] = kwargs[thing]
-        elif not item in kwargs.keys() or kwargs[item] == None:
+                        args.extend([(key, val) for key, val in availableargs if key == thing])
+        elif type(item) == tuple:
+            #require at least one of the list elements (but more than one is ok too)
+            thingfound = ''
+            for thing in item:
+                if thing in availablekeys:
+                    thingfound = thing                    
+                    args.extend([(key, val) for key, val in availableargs if key == thing])
+            if thingfound == '':
+                #needed something, found nothing
+                raise MissingParameterError(baseurl + ' needed one or more of ' + str(item) + ' but was given none of them.')
+        elif not item in availablekeys:
             raise MissingParameterError(baseurl + ' is missing ' + item + ' parameter.')
         else:
-            args[item] = kwargs[item]
+            args.extend([(key, val) for key, val in availableargs if key == item])
 
     #optional arguments
     for item in optargs:
-        if item in kwargs.keys() and not kwargs[item] == None:
-            args[item] = kwargs[item]
+        if item in availableargs:
+            args.extend([(key, val) for key, val in availableargs if key == item])
 
     params = urllib.parse.urlencode(args)
     url = baseurl+'?%s'%params
     req = urllib.request.Request(url)
 
     #client id and oauth
-    if not 'clientid' in kwargs.keys():
+    if not 'clientid' in availablekeys:
         raise MissingParameterError(baseurl + ' is missing clientid parameter.')
-    req.add_header('Client-ID', kwargs['clientid'])
+    req.add_header('Client-ID', findvalue('clientid', availableargs))
 
-    if not 'oauth' in kwargs.keys():
+    if not 'oauth' in availablekeys:
         raise MissingParameterError(baseurl + ' is missing oauth parameter.')
-    req.add_header('Authorization', 'Bearer ' + kwargs['oauth'])
+    req.add_header('Authorization', 'Bearer ' + findvalue('oauth', availableargs))
 
     with urllib.request.urlopen(req) as f:
         results = f.read().decode('utf-8')
 
     #return results as a dict
-    return eval(results)
+    return ast.literal_eval(results)
 
         
 
@@ -99,7 +131,7 @@ def twitchget(baseurl, reqargs, optargs, **kwargs):
 ###
 #@twitchget(COMMON_BASE_URL+'bits/leaderboard', (), ('count', 'period', 'started_at', 'user_id'), **kwargs)
 def get_bits_leaderboard(**kwargs):
-    return twitchget(COMMON_BASE_URL+'bits/leaderboard', (), ('count', 'period', 'started_at', 'user_id'), **kwargs)
+    return twitchget(COMMON_BASE_URL+'bits/leaderboard', (), ('count', 'period', 'started_at', 'user_id'), listify_keywords(**kwargs))
 
 #Creates a clip programmatically.  This returns both an ID and an edit URL for the new clip
 #Required Scope: clips:edit
@@ -145,9 +177,7 @@ def create_clip(**kwargs):
 # view_count(int) : Number of times the clip has been viewed
 ###
 def get_clips(**kwargs):
-    return twitchget(COMMON_BASE_URL+'clips', (['broadcaster_id', 'game_id', 'id'],), ('after', 'before', 'first'), **kwargs)
-#    GET_CLIPS_BASE_URL = COMMON_BASE_URL + 'clips'
-#    return 'get_clips'
+    return twitchget(COMMON_BASE_URL+'clips', (['broadcaster_id', 'game_id', 'id'],), ('after', 'before', 'first'), listify_keywords(**kwargs))
 
 #Creates a URL where you can upload a manifest file and notify users that they have an entitlement.  See Drops Guide.
 #Required Scope: Application access token
@@ -181,8 +211,7 @@ def create_entitlement_grants_upload_URL(**kwargs):
 # name(str) : Game name
 ###
 def get_games(**kwargs):
-    GET_GAMES_BASE_URL = COMMON_BASE_URL + 'games'
-    return 'get_games'
+    return twitchget(COMMON_BASE_URL+'games', (('id', 'name'),), (), listify_keywords(**kwargs))
 
 #Get a URL that game developers can use to download analytics for their games in a CSV format.  The URL is valid for 1 minute.  See Game Developer Analytics guide.
 #Required Scope: analytics:read:games

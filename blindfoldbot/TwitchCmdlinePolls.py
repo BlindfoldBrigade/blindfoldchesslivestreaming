@@ -100,8 +100,8 @@ def setup_argument_parsers(progname):
     argparser_getgames = argparse.ArgumentParser(prog=progname + ' get_games', description='get specified game information. ' + OPTIONAL_CAVEAT, parents=[parser])
 
         ###ONE OR MORE OF OPTIONS BELOW, CAN DO BOTH
-    argparser_getgames.add_argument('--id', type=hundredlist, help='game id, at most 100 values')
-    argparser_getgames.add_argument('--name', type=hundredlist, help='game name, at most 100 values')        
+    argparser_getgames.add_argument('--id', type=hundredlist, help='game id, at most 100 values', default=None)
+    argparser_getgames.add_argument('--name', type=hundredlist, help='game name, at most 100 values', default=None)
         ###ONE OR MORE OF OPTIONS ABOVE, CAN DO BOTH
     command_functions['get_games'].append(argparser_getgames)
     
@@ -182,16 +182,12 @@ def print_known_commands():
     for key in command_functions:
         print('\t' + key)
 
-#this is used to allow another python program to use this functionality without having to do a command shell execution
-#def twitch_command_programmatic():
-
 if __name__ == "__main__":
     parser = setup_argument_parsers(sys.argv[0])
     if len(sys.argv) < 2:
         print_known_commands()
         sys.exit()
 
-#    parsed_arguments = parser.parse_args(sys.argv[1:])
 
     command_name = sys.argv[1]
 
@@ -202,21 +198,3 @@ if __name__ == "__main__":
 
     args = command_functions[command_name][1].parse_args(sys.argv[2:])
     print(command_functions[command_name][0](**vars(args)))
-
-
-#    print(command_functions[command_name][0](command_functions[command_name][1], sys.argv))
-
-#    config_filename = sys.argv[2]
-
-#    config = ConfigParser.ConfigParser()
-
-#    parsed_list = config.read(config_filename)
-
-#    if len(parsed_list) > 0:
-#        twitch_config = TwitchConfig(config)
-#    else:
-        #generate a new default values config file
-#        print("No config file found for ", config_filename, ", generating default config in that file")
-#        generate_default_config(config_filename)
-
-

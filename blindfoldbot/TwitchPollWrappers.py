@@ -1,5 +1,6 @@
 #you have to do a pip install python-dateutil to get this, it's not part of regular python
 import dateutil
+import ast
 
 
 
@@ -15,13 +16,29 @@ class datetime_rfc3339:
         return self.datetimee.isoformat()
 
 class hundredlist:
+    def listify(self, liststring):
+        withoutbrackets = liststring[1:len(liststring)-1]
+        self.listee = withoutbrackets.split(',')       
+
     def __init__(self, liststring):
-        self.listee = list(liststring)
+        if len(liststring) == 0:
+            str.listee = []
+        elif not liststring[0] == '[':
+            raise ValueError("A list needs to start with the '[' character")
+        else:
+            self.listify(liststring)
+
         if len(self.listee) > 100:
             raise ValueError('The list is too long, maximum of 100 entries')
 
     def __str__(self):
         return self.listee.__str__()
+
+    def __repr__(self):
+        return self.listee.__repr__()
+
+    def __iter__(self):
+        return self.listee.__iter__()
 
 class twitchmanifestid:
     def __init__(self, manifeststring):
