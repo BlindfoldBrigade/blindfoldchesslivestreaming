@@ -246,8 +246,7 @@ def get_game_analytics(**kwargs):
 # pagination(str) : cursor value, use as starting point for next set
 ###
 def get_top_games(**kwargs):
-    GET_TOP_GAMES_BASE_URL = COMMON_BASE_URL + 'games/top'
-    return 'get_top_games'
+    return twitchget(COMMON_BASE_URL+'games/top', (), ('after', 'before', 'first'), listify_keywords(**kwargs))
 
 #Gets information about active streams.
 #Required Scope: None

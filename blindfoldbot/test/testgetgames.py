@@ -37,7 +37,7 @@ class testgetgames(TwitchEnvVars):
         for item in python_api_results:
             self.assertTrue(item in curl_results)
         
-        #the screenscrape results lack id, but the name and boxart portions should match\
+        #the screenscrape results lack id, but the name and boxart portions should match
         for name, boxart in screenscrape_results:
             foundcurrent = False
             for item in python_api_results:
