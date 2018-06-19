@@ -116,10 +116,10 @@ def setup_argument_parsers(progname):
 
     #parser for get streams
     argparser_streams = argparse.ArgumentParser(prog=progname + ' get_streams', description='get streams matching particular criteria. ' + OPTIONAL_CAVEAT, parents=[parser, alsobeforeparser, languageparser])
-    argparser_streams.add_argument('--communityid', type=hundredlist, required=False, help='returns streams in a specific community id, up to 100 values')
-    argparser_streams.add_argument('--gameid', type=hundredlist, required=False, help='returns streams for a specific game id, up to 100 values')
-    argparser_streams.add_argument('--userid', type=hundredlist, required=False, help='return streams broadcast by one or more of the specified IDs, up to 100 values')
-    argparser_streams.add_argument('--userlogin', type=hundredlist, required=False, help='return streams broadcast by one or more of the specified logins, up to 100 values')
+    argparser_streams.add_argument('--community_id', type=hundredlist, required=False, help='returns streams in a specific community id, up to 100 values')
+    argparser_streams.add_argument('--game_id', type=hundredlist, required=False, help='returns streams for a specific game id, up to 100 values')
+    argparser_streams.add_argument('--user_id', type=hundredlist, required=False, help='return streams broadcast by one or more of the specified IDs, up to 100 values')
+    argparser_streams.add_argument('--user_login', type=hundredlist, required=False, help='return streams broadcast by one or more of the specified logins, up to 100 values')
     command_functions['get_streams'].append(argparser_streams)
 
     #parser for get streams metadata
