@@ -86,8 +86,7 @@ def twitchget(baseurl, reqargs, optargs, availableargs):
 
     #optional arguments
     for item in optargs:
-        if item in availableargs:
-            args.extend([(key, val) for key, val in availableargs if key == item])
+        args.extend([(key, val) for key, val in availableargs if key == item])
 
     params = urllib.parse.urlencode(args)
     url = baseurl+'?%s'%params
@@ -277,8 +276,7 @@ def get_top_games(**kwargs):
 # viewer_count(int) : number of viewers watching the stream at the time of the query.
 ###
 def get_streams(**kwargs):
-    GET_STREAMS_BASE_URL = COMMON_BASE_URL + 'streams'
-    return 'get_streams'
+    return twitchget(COMMON_BASE_URL+'streams', (), ('after', 'before', 'community_id', 'first', 'game_id', 'language', 'user_id', 'user_login'), listify_keywords(**kwargs))
 
 #Gets metadata about active streams playing Overwatch or Hearthstone.
 # Someone who cares about Hearthstone and/or Overwatch can properly implement this function.
