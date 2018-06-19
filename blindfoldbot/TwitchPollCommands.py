@@ -307,8 +307,7 @@ def get_streams_metadata(**kwargs):
 # view_count(int) : Total number of views of the user's channel.
 ###
 def get_users(**kwargs):
-    GET_USERS_BASE_URL = COMMON_BASE_URL + 'users'
-    return 'get_users'
+    return twitchget(COMMON_BASE_URL+'users', (), ('id','login'), listify_keywords(**kwargs))
 
 #Gets information on follow relationships between two Twitch users.  Eg "Who is Lirik following", "Who is following Lirik", "is user X following user Y"
 #Required Scope : None
