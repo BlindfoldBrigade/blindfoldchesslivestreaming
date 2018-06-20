@@ -55,7 +55,7 @@ def findvalue(key, seq):
 def twitchget(baseurl, reqargs, optargs, availableargs):
     args = []
     availablekeys = [key for key,value in availableargs]
-        
+
     #required arguments
     for item in reqargs:
         if type(item) == list:
@@ -330,8 +330,7 @@ def get_users(**kwargs):
 # total(int) : total number of items returned
 ###
 def get_users_follows(**kwargs):
-    GET_USERS_FOLLOWS = COMMON_BASE_URL + 'users/follows'
-    return 'get_users_follows'
+    return twitchget(COMMON_BASE_URL+'users/follows', (['from_id', 'to_id'],), ('after', 'first'), listify_keywords(**kwargs))
 
 #Updates the description of a user specified by a Bearer token
 #Required Scope : user:edit
