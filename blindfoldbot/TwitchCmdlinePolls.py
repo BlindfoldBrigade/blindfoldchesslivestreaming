@@ -139,8 +139,8 @@ def setup_argument_parsers(progname):
     #parser for get users follows
     argparser_userfollows = argparse.ArgumentParser(prog=progname + ' get_users_follows', description='get who a user follows, or who is following a user. ' + OPTIONAL_CAVEAT, parents=[parser, afterfirstparser])
     to_or_from_group = argparser_userfollows.add_mutually_exclusive_group(required=True)
-    to_or_from_group.add_argument('--fromid', help='user id, users who are being followed by fromid')
-    to_or_from_group.add_argument('--toid', help='user id, which users are following toid')
+    to_or_from_group.add_argument('--from_id', help='user id, users who are being followed by fromid')
+    to_or_from_group.add_argument('--to_id', help='user id, which users are following toid')
     command_functions['get_users_follows'].append(argparser_userfollows)
 
     #parser for update user
