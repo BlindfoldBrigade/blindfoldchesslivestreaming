@@ -52,7 +52,7 @@ def findvalue(key, seq):
 
     return None
 
-def twitchget(baseurl, reqargs, optargs, availableargs):
+def twitchrequest(baseurl, reqargs, optargs, availableargs, methodd):
     args = []
     availablekeys = [key for key,value in availableargs]
 
@@ -90,7 +90,7 @@ def twitchget(baseurl, reqargs, optargs, availableargs):
 
     params = urllib.parse.urlencode(args)
     url = baseurl+'?%s'%params
-    req = urllib.request.Request(url)
+    req = urllib.request.Request(url,method=methodd)
 
     #client id and oauth
     if not 'clientid' in availablekeys:
@@ -107,7 +107,11 @@ def twitchget(baseurl, reqargs, optargs, availableargs):
     #return results as a dict
     return ast.literal_eval(results)
 
+def twitchget(baseurl, reqargs, optargs, availableargs):
+    return twitchrequest(baseurl, reqargs, optargs, availableargs, 'GET')
         
+def twitchput(baseurl, reqargs, optargs, availableargs):
+    return twitchrequest(baseurl, reqargs, optargs, availableargs, 'PUT')
 
 #Gets a ranked list of Bits leaderboard information for an authorized broadcaster
 #Required Scope: bits:read
@@ -343,9 +347,10 @@ def get_users_follows(**kwargs):
 ###response fields
 # same as for Get Users
 ###
-def update_user(**kwargs):
-    UPDATE_USER_BASE_URL = COMMON_BASE_URL + 'users'
-    return 'update_user'
+def update_user(**kwargs):    
+    return twitchput(COMMON_BASE_URL+'users', ('description',), (), listify_keywords(**kwargs))
+#    UPDATE_USER_BASE_URL = COMMON_BASE_URL + 'users'
+#    return 'update_user'
 
 #Gets video information by video ID (one or more), user ID (one only), or game ID (one only)
 #Required Scope : None
