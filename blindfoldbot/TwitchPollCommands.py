@@ -349,8 +349,6 @@ def get_users_follows(**kwargs):
 ###
 def update_user(**kwargs):    
     return twitchput(COMMON_BASE_URL+'users', ('description',), (), listify_keywords(**kwargs))
-#    UPDATE_USER_BASE_URL = COMMON_BASE_URL + 'users'
-#    return 'update_user'
 
 #Gets video information by video ID (one or more), user ID (one only), or game ID (one only)
 #Required Scope : None
@@ -359,6 +357,7 @@ def update_user(**kwargs):
 # id(str) : ID of the video being queried, limit 100, no optional parameters can be used if you use this
 #   OR
 # user_id(str) : ID of the user who owns the video, limit 1
+#   OR
 # game_id(str) : ID of the game the video is of, limit 1
 ##optional
 # after(str) : forward cursor
@@ -386,5 +385,5 @@ def update_user(**kwargs):
 # viewable(str) : Indicates whether the video is publicly viewable.  Options "public", "private"
 ###
 def get_videos(**kwargs):
-    GET_VIDEOS_BASE_URL = COMMON_BASE_URL + 'videos'
-    return 'get_videos'
+    return twitchget(COMMON_BASE_URL+'videos', (['id', 'user_id', 'game_id'],), ('after', 'before', 'first', 'language', 'period', 'sort', 'type'), listify_keywords(**kwargs))
+
